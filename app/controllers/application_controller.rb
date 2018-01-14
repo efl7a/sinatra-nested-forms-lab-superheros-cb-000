@@ -8,15 +8,20 @@ class App < Sinatra::Base
       erb :super_hero
     end
 
-    post '/teams' do
+    get '/team/:id' do
+      @team = Team.find(params[:id])
+      @members = Superhero.where("team_id = #{params[:id]}")
+      erb :team
+    end
 
-      @team = Team.new(params[:team])
+    post '/teams' do
+      new_team = Team.new(name: params[:team][:name], motto: params[:team][:motto])
+
       params[:team][:members].each do |details|
         hero = Superhero.new(details)
-        hero.team = @team
+        hero.team = new_team
+        hero.save
       end
-      @heroes = Superhero.all
-
-      erb :team
+      redirect to "/team/#{new_team.id}"
     end
 end
